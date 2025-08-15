@@ -366,22 +366,29 @@ func styleExample(c *cobra.Command, line string, indent bool, styles Codeblock) 
 func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
 	flags := map[string]string{}
 	keys := []string{}
+
+	hasShorthand := false
+	c.Flags().VisitAll(func(f *pflag.Flag) {
+		if f.Shorthand != "" {
+			hasShorthand = true
+		}
+	})
+
 	c.Flags().VisitAll(func(f *pflag.Flag) {
 		if f.Hidden {
 			return
 		}
+
 		var parts []string
 		if f.Shorthand == "" {
-			parts = append(
-				parts,
-				styles.Program.Flag.Render("--"+f.Name),
-			)
+			if hasShorthand {
+				parts = append(parts, "   ")
+			}
 		} else {
-			parts = append(
-				parts,
-				styles.Program.Flag.Render("-"+f.Shorthand+" --"+f.Name),
-			)
+			parts = append(parts, styles.Program.Flag.Render("-"+f.Shorthand+" "))
 		}
+		parts = append(parts, styles.Program.Flag.Render("--"+f.Name))
+
 		key := lipgloss.JoinHorizontal(lipgloss.Left, parts...)
 
 		// Handle multiline flag descriptions by processing each line separately
@@ -408,6 +415,7 @@ func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
 		flags[key] = help
 		keys = append(keys, key)
 	})
+
 	return flags, keys
 }
 
