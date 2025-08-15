@@ -27,6 +27,10 @@ const (
 	longPad  = 4
 )
 
+type helpOptions struct {
+	flagTypes bool
+}
+
 var width = sync.OnceValue(func() int {
 	if s := os.Getenv("__FANG_TEST_WIDTH"); s != "" {
 		w, _ := strconv.Atoi(s)
@@ -39,7 +43,7 @@ var width = sync.OnceValue(func() int {
 	return min(w, 120)
 })
 
-func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles) {
+func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOptions) {
 	writeLongShort(w, styles, cmp.Or(c.Long, c.Short))
 	usage := styleUsage(c, styles.Codeblock.Program, true)
 	examples := styleExamples(c, styles)
@@ -73,7 +77,7 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles) {
 
 	groups, groupKeys := evalGroups(c)
 	cmds, cmdKeys := evalCmds(c, styles)
-	flags, flagKeys := evalFlags(c, styles)
+	flags, flagKeys := evalFlags(c, styles, opts.flagTypes)
 	space := calculateSpace(cmdKeys, flagKeys)
 
 	for _, groupID := range groupKeys {
@@ -363,7 +367,7 @@ func styleExample(c *cobra.Command, line string, indent bool, styles Codeblock) 
 	)
 }
 
-func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
+func evalFlags(c *cobra.Command, styles Styles, flagTypes bool) (map[string]string, []string) {
 	flags := map[string]string{}
 	keys := []string{}
 
@@ -379,6 +383,21 @@ func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
 			return
 		}
 
+		var typeStr string
+		if flagTypes {
+			switch t := f.Value.Type(); t {
+			case "bool":
+				typeStr = ""
+			case "float64":
+				typeStr = "float"
+			case "stringSlice":
+				typeStr = "strings"
+			case "intSlice":
+				typeStr = "ints"
+			default:
+				typeStr = t
+			}
+		}
 		var parts []string
 		if f.Shorthand == "" {
 			if hasShorthand {
@@ -388,6 +407,9 @@ func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
 			parts = append(parts, styles.Program.Flag.Render("-"+f.Shorthand+" "))
 		}
 		parts = append(parts, styles.Program.Flag.Render("--"+f.Name))
+		if typeStr != "" {
+			parts = append(parts, styles.Program.DimmedArgument.Render(" "+typeStr))
+		}
 
 		key := lipgloss.JoinHorizontal(lipgloss.Left, parts...)
 
