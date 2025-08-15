@@ -1,0 +1,26 @@
+
+  Long help                                  
+         
+  USAGE  
+         
+    simple [command] [--flags]  
+            
+  COMMANDS  
+            
+    completion [command]      Generate the autocompletion script for the specified shell
+    help [command]            Help about any command
+         
+  FLAGS  
+         
+    --bool1                   A bool flag
+    --duration1 duration      A duration flag (0s)
+    --float1 float            A float64 flag
+    --float2 float32          A float32 flag
+    -h --help                 Help for simple
+    --int1 int                An int flag
+    --intArr1 ints            An int array flag
+    --string1 string          A string flag
+    --stringArr1 stringArray  A string array flag
+    --stringSlice1 strings    A string array flag
+    -v --version              Version for simple
+

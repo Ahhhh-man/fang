@@ -37,6 +37,7 @@ type settings struct {
 	colorscheme ColorSchemeFunc
 	errHandler  ErrorHandler
 	signals     []os.Signal
+	flagTypes   bool
 }
 
 // Option changes fang settings.
@@ -110,6 +111,13 @@ func WithNotifySignal(signals ...os.Signal) Option {
 	}
 }
 
+// WithFlagTypes enables flag types in the help output.
+func WithFlagTypes() Option {
+	return func(s *settings) {
+		s.flagTypes = true
+	}
+}
+
 // Execute applies fang to the command and executes it.
 func Execute(ctx context.Context, root *cobra.Command, options ...Option) error {
 	opts := settings{
@@ -125,7 +133,10 @@ func Execute(ctx context.Context, root *cobra.Command, options ...Option) error 
 
 	helpFunc := func(c *cobra.Command, _ []string) {
 		w := colorprofile.NewWriter(c.OutOrStdout(), os.Environ())
-		helpFn(c, w, makeStyles(mustColorscheme(opts.colorscheme)))
+		helpOpts := helpOptions{
+			flagTypes: opts.flagTypes,
+		}
+		helpFn(c, w, makeStyles(mustColorscheme(opts.colorscheme)), helpOpts)
 	}
 
 	root.SilenceUsage = true
