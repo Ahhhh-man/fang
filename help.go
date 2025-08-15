@@ -26,6 +26,10 @@ const (
 	longPad  = 4
 )
 
+type helpOptions struct {
+	flagTypes bool
+}
+
 var width = sync.OnceValue(func() int {
 	if s := os.Getenv("__FANG_TEST_WIDTH"); s != "" {
 		w, _ := strconv.Atoi(s)
@@ -38,7 +42,7 @@ var width = sync.OnceValue(func() int {
 	return min(w, 120)
 })
 
-func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles) {
+func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOptions) {
 	writeLongShort(w, styles, cmp.Or(c.Long, c.Short))
 	usage := styleUsage(c, styles.Codeblock.Program, true)
 	examples := styleExamples(c, styles)
@@ -72,7 +76,7 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles) {
 
 	groups, groupKeys := evalGroups(c)
 	cmds, cmdKeys := evalCmds(c, styles)
-	flags, flagKeys := evalFlags(c, styles)
+	flags, flagKeys := evalFlags(c, styles, opts.flagTypes)
 	space := calculateSpace(cmdKeys, flagKeys)
 
 	for _, groupID := range groupKeys {
@@ -354,24 +358,37 @@ func styleExample(c *cobra.Command, line string, indent bool, styles Codeblock) 
 	)
 }
 
-func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
+func evalFlags(c *cobra.Command, styles Styles, flagTypes bool) (map[string]string, []string) {
 	flags := map[string]string{}
 	keys := []string{}
 	c.Flags().VisitAll(func(f *pflag.Flag) {
 		if f.Hidden {
 			return
 		}
+		var typeStr string
+		if flagTypes {
+			// map internal pflag types to friendlier names (parity with cobra)
+			switch t := f.Value.Type(); t {
+			case "bool":
+				typeStr = ""
+			case "float64":
+				typeStr = "float"
+			case "stringSlice":
+				typeStr = "strings"
+			case "intSlice":
+				typeStr = "ints"
+			default:
+				typeStr = t
+			}
+		}
+		flagLabel := "--" + f.Name
+		if f.Shorthand != "" {
+			flagLabel = "-" + f.Shorthand + " " + flagLabel
+		}
 		var parts []string
-		if f.Shorthand == "" {
-			parts = append(
-				parts,
-				styles.Program.Flag.Render("--"+f.Name),
-			)
-		} else {
-			parts = append(
-				parts,
-				styles.Program.Flag.Render("-"+f.Shorthand+" --"+f.Name),
-			)
+		parts = append(parts, styles.Program.Flag.Render(flagLabel))
+		if typeStr != "" {
+			parts = append(parts, styles.Program.DimmedArgument.Render(" "+typeStr))
 		}
 		key := lipgloss.JoinHorizontal(lipgloss.Left, parts...)
 		help := styles.FlagDescription.Render(f.Usage)
