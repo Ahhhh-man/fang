@@ -142,6 +142,28 @@ func TestSetup(t *testing.T) {
 		exercise(t, mkroot)
 	})
 
+	t.Run("with flag types", func(t *testing.T) {
+		mkroot := func() *cobra.Command {
+			cmd := &cobra.Command{
+				Use:   "simple",
+				Short: "Short help",
+				Long:  "Long help",
+			}
+			cmd.Flags().String("string1", "", "a string flag")
+			cmd.Flags().StringSlice("stringSlice1", []string{}, "a string array flag")
+			cmd.Flags().StringArray("stringArr1", []string{}, "a string array flag")
+			cmd.Flags().Int("int1", 0, "an int flag")
+			cmd.Flags().IntSlice("intArr1", []int{}, "an int array flag")
+			cmd.Flags().Float64("float1", 0, "a float64 flag")
+			cmd.Flags().Float32("float2", 0, "a float32 flag")
+			cmd.Flags().Bool("bool1", false, "a bool flag")
+			cmd.Flags().Duration("duration1", 0, "a duration flag")
+			_ = cmd.Flags().MarkHidden("hidden")
+			return cmd
+		}
+		exercise(t, mkroot, fang.WithFlagTypes())
+	})
+
 	t.Run("with subcommands", func(t *testing.T) {
 		mkroot := func() *cobra.Command {
 			cmd := &cobra.Command{

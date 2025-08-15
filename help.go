@@ -27,6 +27,11 @@ const (
 	longPad  = 4
 )
 
+type helpOptions struct {
+	flagTypes bool
+	sections  HelpSectionsFunc
+}
+
 var width = sync.OnceValue(func() int {
 	if s := os.Getenv("__FANG_TEST_WIDTH"); s != "" {
 		w, _ := strconv.Atoi(s)
@@ -39,7 +44,7 @@ var width = sync.OnceValue(func() int {
 	return min(w, 120)
 })
 
-func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, sectionsFn HelpSectionsFunc) {
+func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOptions) {
 	writeLongShort(w, styles, cmp.Or(c.Long, c.Short))
 	usage := styleUsage(c, styles.Codeblock.Program, true)
 	examples := styleExamples(c, styles)
@@ -73,11 +78,11 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, sectionsFn 
 
 	groups, groupKeys := evalGroups(c)
 	cmds, cmdKeys := evalCmds(c, styles)
-	flags, flagKeys := evalFlags(c, styles)
+	flags, flagKeys := evalFlags(c, styles, opts.flagTypes)
 
 	var sections []HelpSection
-	if sectionsFn != nil {
-		sections = sectionsFn(c)
+	if opts.sections != nil {
+		sections = opts.sections(c)
 	}
 	sectionKeys := make([][]string, len(sections))
 	for i, section := range sections {
@@ -394,7 +399,7 @@ func styleExample(c *cobra.Command, line string, indent bool, styles Codeblock) 
 	)
 }
 
-func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
+func evalFlags(c *cobra.Command, styles Styles, flagTypes bool) (map[string]string, []string) {
 	flags := map[string]string{}
 	keys := []string{}
 
@@ -410,6 +415,21 @@ func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
 			return
 		}
 
+		var typeStr string
+		if flagTypes {
+			switch t := f.Value.Type(); t {
+			case "bool":
+				typeStr = ""
+			case "float64":
+				typeStr = "float"
+			case "stringSlice":
+				typeStr = "strings"
+			case "intSlice":
+				typeStr = "ints"
+			default:
+				typeStr = t
+			}
+		}
 		var parts []string
 		if f.Shorthand == "" {
 			if hasShorthand {
@@ -419,6 +439,9 @@ func evalFlags(c *cobra.Command, styles Styles) (map[string]string, []string) {
 			parts = append(parts, styles.Program.Flag.Render("-"+f.Shorthand+" "))
 		}
 		parts = append(parts, styles.Program.Flag.Render("--"+f.Name))
+		if typeStr != "" {
+			parts = append(parts, styles.Program.DimmedArgument.Render(" "+typeStr))
+		}
 
 		key := lipgloss.JoinHorizontal(lipgloss.Left, parts...)
 

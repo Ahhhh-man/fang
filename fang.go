@@ -43,15 +43,15 @@ type HelpSectionsFunc = func(c *cobra.Command) []HelpSection
 type ColorSchemeFunc = func(lipgloss.LightDarkFunc) ColorScheme
 
 type settings struct {
-	completions  bool
-	manpages     bool
-	skipVersion  bool
-	version      string
-	commit       string
-	colorscheme  ColorSchemeFunc
-	errHandler   ErrorHandler
-	helpSections HelpSectionsFunc
-	signals      []os.Signal
+	completions bool
+	manpages    bool
+	skipVersion bool
+	version     string
+	commit      string
+	colorscheme ColorSchemeFunc
+	errHandler  ErrorHandler
+	signals     []os.Signal
+	helpOptions helpOptions
 }
 
 // Option changes fang settings.
@@ -120,7 +120,7 @@ func WithErrorHandler(handler ErrorHandler) Option {
 // WithHelpSections sets a function that adds custom sections after fang's help output.
 func WithHelpSections(fn HelpSectionsFunc) Option {
 	return func(s *settings) {
-		s.helpSections = fn
+		s.helpOptions.sections = fn
 	}
 }
 
@@ -129,6 +129,13 @@ func WithHelpSections(fn HelpSectionsFunc) Option {
 func WithNotifySignal(signals ...os.Signal) Option {
 	return func(s *settings) {
 		s.signals = signals
+	}
+}
+
+// WithFlagTypes enables flag types in the help output.
+func WithFlagTypes() Option {
+	return func(s *settings) {
+		s.helpOptions.flagTypes = true
 	}
 }
 
@@ -155,7 +162,7 @@ func Execute(ctx context.Context, root *cobra.Command, options ...Option) error 
 
 	helpFunc := func(c *cobra.Command, _ []string) {
 		w := colorprofile.NewWriter(c.OutOrStdout(), os.Environ())
-		helpFn(c, w, makeStyles(mustColorscheme(opts.colorscheme)), opts.helpSections)
+		helpFn(c, w, makeStyles(mustColorscheme(opts.colorscheme)), opts.helpOptions)
 	}
 
 	root.SilenceUsage = true
