@@ -101,14 +101,14 @@ func TestTitleFirstWord(t *testing.T) {
 			expected: "- item",
 		},
 		{
-			name:     "all caps",
+			name:     "all caps preserved",
 			input:    "ABC",
-			expected: "Abc",
+			expected: "ABC",
 		},
 		{
-			name:     "all caps with second word",
+			name:     "all caps with second word preserved",
 			input:    "ABC def",
-			expected: "Abc def",
+			expected: "ABC def",
 		},
 		{
 			name:     "CJK characters",

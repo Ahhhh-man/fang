@@ -9,8 +9,6 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/exp/charmtone"
 	"github.com/charmbracelet/x/term"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 // ColorScheme describes a colorscheme.
@@ -200,7 +198,6 @@ func makeStyles(cs ColorScheme) Styles {
 }
 
 func titleFirstWord(s string) string {
-	// Find the first word, skipping any leading whitespace.
 	runes := []rune(s)
 	start := 0
 	for start < len(runes) && unicode.IsSpace(runes[start]) {
@@ -209,14 +206,8 @@ func titleFirstWord(s string) string {
 	if start >= len(runes) {
 		return s
 	}
-
-	// Find the end of the first word.
-	end := start
-	for end < len(runes) && !unicode.IsSpace(runes[end]) {
-		end++
-	}
-
-	// Capitalize the first word and reconstruct the string.
-	firstWord := cases.Title(language.AmericanEnglish).String(string(runes[start:end]))
-	return string(runes[:start]) + firstWord + string(runes[end:])
+	result := make([]rune, len(runes))
+	copy(result, runes)
+	result[start] = unicode.ToUpper(runes[start])
+	return string(result)
 }
