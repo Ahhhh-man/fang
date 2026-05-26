@@ -1,4 +1,4 @@
-module charm.land/fang/v2
+module github.com/Ahhhh-man/fang
 
 go 1.25.0
 
