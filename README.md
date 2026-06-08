@@ -4,9 +4,9 @@
     <img width="485" alt="Charm Fang" src="https://github.com/user-attachments/assets/3f34ea01-3750-4760-beb2-a1b700e110f5">
 </p>
 <p>
-    <a href="https://github.com/charmbracelet/fang/releases"><img src="https://img.shields.io/github/release/charmbracelet/fang.svg" alt="Latest Release"></a>
-    <a href="https://pkg.go.dev/github.com/charmbracelet/fang?tab=doc"><img src="https://godoc.org/github.com/charmbracelet/fang?status.svg" alt="GoDoc"></a>
-    <a href="https://github.com/charmbracelet/fang/actions"><img src="https://github.com/charmbracelet/fang/workflows/build/badge.svg" alt="Build Status"></a>
+    <a href="https://github.com/Ahhhh-man/fang/releases"><img src="https://img.shields.io/github/release/Ahhhh-man/fang.svg" alt="Latest Release"></a>
+    <a href="https://pkg.go.dev/github.com/Ahhhh-man/fang/v2?tab=doc"><img src="https://godoc.org/github.com/Ahhhh-man/fang/v2?status.svg" alt="GoDoc"></a>
+    <a href="https://github.com/Ahhhh-man/fang/actions"><img src="https://github.com/Ahhhh-man/fang/workflows/build/badge.svg" alt="Build Status"></a>
 </p>
 
 The CLI starter kit. A small, experimental library for batteries-included [Cobra][cobra] applications.
@@ -48,7 +48,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/charmbracelet/fang"
+	"github.com/Ahhhh-man/fang/v2"
 	"github.com/spf13/cobra"
 )
 
@@ -69,7 +69,7 @@ That's all there is to it!
 
 See [contributing][contribute].
 
-[contribute]: https://github.com/charmbracelet/fang/contribute
+[contribute]: https://github.com/Ahhhh-man/fang/contribute
 
 ## Feedback
 
