@@ -1,0 +1,30 @@
+
+  Short help                                 
+         
+  USAGE  
+         
+    wrapped [command] [--flags]            
+            
+  EXAMPLES  
+            
+    # List nodes with a Go template, one   
+    line per row:                          
+    wrapped node list --format '{{.Name}}  
+    {{.Role}} {{.IsMaster}} {{.Version}}'  
+                                           
+    # Fields: Name NodeID IP HTTPAddress   
+    Version HeapPercent RAMPercent CPU     
+    Disk                                   
+    wrapped node list --format json        
+            
+  COMMANDS  
+            
+    completion [command]  Generate the autocompletion script for the specified shell
+    help [command]        Help about any command
+         
+  FLAGS  
+         
+    -o --format           The output format (table)
+    -h --help             Help for wrapped
+    -v --version          Version for wrapped
+

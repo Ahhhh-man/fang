@@ -302,6 +302,25 @@ echo 'foo' |
 		exercise(t, mkroot)
 	})
 
+	t.Run("with wrapped examples", func(t *testing.T) {
+		mkroot := func() *cobra.Command {
+			cmd := &cobra.Command{
+				Use:   "wrapped",
+				Short: "Short help",
+				Example: `
+# List nodes with a Go template, one line per row:
+wrapped node list --format '{{.Name}} {{.Role}} {{.IsMaster}} {{.Version}}'
+
+# Fields: Name NodeID IP HTTPAddress Version HeapPercent RAMPercent CPU Disk
+wrapped node list --format json
+			`,
+			}
+			cmd.Flags().StringP("format", "o", "table", "the output format")
+			return cmd
+		}
+		exercise(t, mkroot, fang.WithWrappedExamples())
+	})
+
 	t.Run("with multiline flag descriptions", func(t *testing.T) {
 		mkroot := func() *cobra.Command {
 			cmd := &cobra.Command{

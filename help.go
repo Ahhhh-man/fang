@@ -28,7 +28,8 @@ const (
 )
 
 type helpOptions struct {
-	flagTypes bool
+	flagTypes    bool
+	wrapExamples bool
 }
 
 var width = sync.OnceValue(func() int {
@@ -68,7 +69,7 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 		cw := blockStyle.GetWidth() - blockStyle.GetHorizontalPadding()
 		_, _ = fmt.Fprintln(w, styles.Title.Render("examples"))
 		for i, example := range examples {
-			if lipgloss.Width(example) > cw {
+			if !opts.wrapExamples && lipgloss.Width(example) > cw {
 				examples[i] = ansi.Truncate(example, cw, "…")
 			}
 		}

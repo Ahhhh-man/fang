@@ -114,6 +114,14 @@ func WithFlagTypes() Option {
 	}
 }
 
+// WithWrappedExamples soft-wraps long example lines to the width of the
+// examples block instead of truncating them with an ellipsis.
+func WithWrappedExamples() Option {
+	return func(s *settings) {
+		s.helpOptions.wrapExamples = true
+	}
+}
+
 // Execute applies fang to the command and executes it.
 func Execute(ctx context.Context, root *cobra.Command, options ...Option) error {
 	opts := settings{
