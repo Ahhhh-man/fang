@@ -1,4 +1,4 @@
-module github.com/Ahhhh-man/fang
+module github.com/Ahhhh-man/fang/v2
 
 go 1.25.0
 
