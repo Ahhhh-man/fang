@@ -47,9 +47,16 @@ var width = sync.OnceValue(func() int {
 func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOptions) {
 	writeLongShort(w, styles, cmp.Or(c.Long, c.Short))
 	usage := styleUsage(c, styles.Codeblock.Program, true)
-	examples := styleExamples(c, styles)
 
 	padding := styles.Codeblock.Base.GetHorizontalPadding()
+	// When wrapping is enabled, comment lines are wrapped to the block's
+	// content width so each wrapped line can be prefixed with "# ".
+	commentWidth := 0
+	if opts.wrapExamples {
+		commentWidth = width() - padding*2
+	}
+	examples := styleExamples(c, styles, commentWidth)
+
 	blockWidth := lipgloss.Width(usage)
 	for _, ex := range examples {
 		blockWidth = max(blockWidth, lipgloss.Width(ex))
@@ -228,7 +235,7 @@ func styleUsage(c *cobra.Command, styles Program, complete bool) string {
 
 // styleExamples for a given command.
 // will print both the cmd.Use and cmd.Example bits.
-func styleExamples(c *cobra.Command, styles Styles) []string {
+func styleExamples(c *cobra.Command, styles Styles, commentWidth int) []string {
 	if c.Example == "" {
 		return nil
 	}
@@ -240,7 +247,7 @@ func styleExamples(c *cobra.Command, styles Styles) []string {
 		if (i == 0 || i == len(examples)-1) && line == "" {
 			continue
 		}
-		s := styleExample(c, line, indent, styles.Codeblock)
+		s := styleExample(c, line, indent, commentWidth, styles.Codeblock)
 		usage = append(usage, s)
 		indent = len(line) > 1 && (line[len(line)-1] == '\\' || line[len(line)-1] == '|')
 	}
@@ -248,12 +255,37 @@ func styleExamples(c *cobra.Command, styles Styles) []string {
 	return usage
 }
 
-func styleExample(c *cobra.Command, line string, indent bool, styles Codeblock) string {
+// styleComment renders a comment example line. When width > 0 and the line is
+// wider than width, it is word-wrapped with each resulting line prefixed by
+// "# " so the comment remains valid across wraps.
+func styleComment(line string, width int, styles Codeblock) string {
+	if width <= 0 || lipgloss.Width(line) <= width {
+		return styles.Comment.Render(line)
+	}
+
+	words := strings.Fields(strings.TrimPrefix(line, "# "))
+	lines := []string{}
+	current := "#"
+	for _, word := range words {
+		candidate := current + " " + word
+		if current != "#" && lipgloss.Width(candidate) > width {
+			lines = append(lines, current)
+			current = "# " + word
+			continue
+		}
+		current = candidate
+	}
+	lines = append(lines, current)
+
+	for i, l := range lines {
+		lines[i] = styles.Comment.Render(l)
+	}
+	return strings.Join(lines, "\n")
+}
+
+func styleExample(c *cobra.Command, line string, indent bool, commentWidth int, styles Codeblock) string {
 	if strings.HasPrefix(line, "# ") {
-		return lipgloss.JoinHorizontal(
-			lipgloss.Left,
-			styles.Comment.Render(line),
-		)
+		return styleComment(line, commentWidth, styles)
 	}
 
 	var isQuotedString bool

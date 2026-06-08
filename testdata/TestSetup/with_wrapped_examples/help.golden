@@ -8,13 +8,13 @@
   EXAMPLES  
             
     # List nodes with a Go template, one   
-    line per row:                          
+    # line per row:                        
     wrapped node list --format '{{.Name}}  
     {{.Role}} {{.IsMaster}} {{.Version}}'  
                                            
     # Fields: Name NodeID IP HTTPAddress   
-    Version HeapPercent RAMPercent CPU     
-    Disk                                   
+    # Version HeapPercent RAMPercent CPU   
+    # Disk                                 
     wrapped node list --format json        
             
   COMMANDS  
