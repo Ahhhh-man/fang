@@ -1,0 +1,16 @@
+
+  start the server                           
+         
+  USAGE  
+         
+    simple serve [--flags]  
+         
+  FLAGS  
+         
+    -h --help  Help for serve
+    -p --port  Port to listen on (8080)
+                
+  GLOBAL FLAGS  
+                
+    --config   Config file path
+
