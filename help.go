@@ -169,7 +169,10 @@ func writeLongShort(w *colorprofile.Writer, styles Styles, longShort string) {
 	_, _ = fmt.Fprintln(w, styles.Text.Width(width()).PaddingLeft(shortPad).Render(longShort))
 }
 
-var otherArgsRe = regexp.MustCompile(`(\[.*\])`)
+// otherArgsRe matches positional argument placeholders in a usage string:
+// square brackets for optional args ("[name]") and angle brackets for required
+// args ("<name>"). Both are rendered with the dimmed argument style.
+var otherArgsRe = regexp.MustCompile(`(\[.*\]|<.*>)`)
 
 // styleUsage stylized styleUsage line for a given command.
 func styleUsage(c *cobra.Command, styles Program, complete bool) string {
