@@ -131,6 +131,15 @@ func WithGlobalFlags() Option {
 	}
 }
 
+// WithAliases renders an "aliases" section in the help output, listing the
+// command's aliases, when it has any. The section appears right after the
+// usage block.
+func WithAliases() Option {
+	return func(s *settings) {
+		s.helpOptions.aliases = true
+	}
+}
+
 // Execute applies fang to the command and executes it.
 func Execute(ctx context.Context, root *cobra.Command, options ...Option) error {
 	opts := settings{

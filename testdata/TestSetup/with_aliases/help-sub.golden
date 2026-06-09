@@ -1,0 +1,15 @@
+
+  start the server                           
+         
+  USAGE  
+         
+    simple serve [--flags]  
+           
+  ALIASES  
+           
+    s, srv
+         
+  FLAGS  
+         
+    -h --help  Help for serve
+
