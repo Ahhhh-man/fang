@@ -32,6 +32,7 @@ type helpOptions struct {
 	wrapExamples bool
 	sections     HelpSectionsFunc
 	globalFlags  bool
+	aliases      bool
 }
 
 var width = sync.OnceValue(func() int {
@@ -74,6 +75,13 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 
 	_, _ = fmt.Fprintln(w, styles.Title.Render("usage"))
 	_, _ = fmt.Fprintln(w, blockStyle.Render(usage))
+
+	if opts.aliases && len(c.Aliases) > 0 {
+		_, _ = fmt.Fprintln(w, styles.Title.Render("aliases"))
+		aliases := styles.Program.Command.Render(strings.Join(c.Aliases, ", "))
+		_, _ = fmt.Fprintln(w, lipgloss.NewStyle().PaddingLeft(longPad).Render(aliases))
+	}
+
 	if len(examples) > 0 {
 		cw := blockStyle.GetWidth() - blockStyle.GetHorizontalPadding()
 		_, _ = fmt.Fprintln(w, styles.Title.Render("examples"))

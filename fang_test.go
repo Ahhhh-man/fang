@@ -198,6 +198,36 @@ func TestSetup(t *testing.T) {
 		})
 	})
 
+	t.Run("with aliases", func(t *testing.T) {
+		mkroot := func() *cobra.Command {
+			cmd := &cobra.Command{
+				Use:   "simple",
+				Short: "Short help",
+				Long:  "Long help",
+			}
+			sub := &cobra.Command{
+				Use:     "serve",
+				Short:   "start the server",
+				Aliases: []string{"s", "srv"},
+			}
+			cmd.AddCommand(sub)
+			return cmd
+		}
+
+		// Root help: no aliases, so no "aliases" section.
+		exercise(t, mkroot, fang.WithAliases())
+
+		// Subcommand help: "aliases" section with "s, srv" after usage.
+		t.Run("help-sub", func(t *testing.T) {
+			doExercise(
+				t, mkroot,
+				[]string{"serve", "--help"},
+				assertNoError,
+				fang.WithAliases(),
+			)
+		})
+	})
+
 	t.Run("with subcommands", func(t *testing.T) {
 		mkroot := func() *cobra.Command {
 			cmd := &cobra.Command{
