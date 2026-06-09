@@ -170,6 +170,35 @@ func DefaultErrorHandler(w io.Writer, styles Styles, err error) {
 	}
 }
 
+// InlineErrorHandler is an [ErrorHandler] that renders the error on a single
+// line, with the ERROR badge and the message side by side:
+//
+//	ERROR  Something went wrong
+//
+// Long messages soft-wrap, with wrapped lines aligned under the message
+// column. Unlike [DefaultErrorHandler], it does not append a trailing period
+// and does not show a "Try --help for usage." hint.
+func InlineErrorHandler(w io.Writer, styles Styles, err error) {
+	if w, ok := w.(term.File); ok {
+		// if stderr is not a tty, simply print the error without any
+		// styling:
+		if !term.IsTerminal(w.Fd()) {
+			_, _ = fmt.Fprintln(w, err.Error())
+			return
+		}
+	}
+
+	badge := styles.ErrorHeader.UnsetMargins().MarginLeft(2).String()
+	message := styles.ErrorText.
+		UnsetMargins().
+		MarginLeft(1).
+		Width(width() - lipgloss.Width(badge) - 1).
+		Render(err.Error())
+
+	_, _ = fmt.Fprintln(w, lipgloss.JoinHorizontal(lipgloss.Top, badge, message))
+	_, _ = fmt.Fprintln(w)
+}
+
 // XXX: this is a hack to detect usage errors.
 // See: https://github.com/spf13/cobra/pull/2266
 func isUsageError(err error) bool {

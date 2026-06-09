@@ -2,6 +2,7 @@ package fang_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"testing"
@@ -28,6 +29,36 @@ func TestSetup(t *testing.T) {
 			fang.WithErrorHandler(func(w io.Writer, styles fang.Styles, err error) {
 				_, _ = fmt.Fprintf(w, "Custom error handler: %v\n", err)
 			}),
+		)
+	})
+
+	t.Run("inline error handler", func(t *testing.T) {
+		doExercise(
+			t,
+			toMkroot(&cobra.Command{
+				Use: "simple",
+				RunE: func(*cobra.Command, []string) error {
+					return errors.New("this is my error")
+				},
+			}),
+			[]string{},
+			assertError,
+			fang.WithErrorHandler(fang.InlineErrorHandler),
+		)
+	})
+
+	t.Run("inline error handler wrapping", func(t *testing.T) {
+		doExercise(
+			t,
+			toMkroot(&cobra.Command{
+				Use: "simple",
+				RunE: func(*cobra.Command, []string) error {
+					return errors.New("this is a very long error message that should wrap onto multiple lines")
+				},
+			}),
+			[]string{},
+			assertError,
+			fang.WithErrorHandler(fang.InlineErrorHandler),
 		)
 	})
 
