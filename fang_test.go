@@ -181,6 +181,10 @@ func TestSetup(t *testing.T) {
 				Example: `simple sub1 sub2 args --help`,
 			})
 			cmd.AddCommand(sub)
+			cmd.AddCommand(&cobra.Command{
+				Use:   "close <name...>",
+				Short: "a sub command with required args",
+			})
 			return cmd
 		}
 

@@ -7,6 +7,7 @@
             
   COMMANDS  
             
+    close <name...>       A sub command with required args
     completion [command]  Generate the autocompletion script for the specified shell
     help [command]        Help about any command
     sub1                  A sub command
