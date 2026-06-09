@@ -1,0 +1,20 @@
+
+  Long help                                  
+         
+  USAGE  
+         
+    simple [command] [--flags]  
+            
+  COMMANDS  
+            
+    completion [command]  Generate the autocompletion script for the specified shell
+    help [command]        Help about any command
+    serve [--flags]       Start the server
+         
+  FLAGS  
+         
+       --config           Config file path
+    -h --help             Help for simple
+       --verbose          Verbose output
+    -v --version          Version for simple
+

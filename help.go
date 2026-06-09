@@ -30,6 +30,7 @@ const (
 type helpOptions struct {
 	flagTypes    bool
 	wrapExamples bool
+	globalFlags  bool
 }
 
 var width = sync.OnceValue(func() int {
@@ -85,8 +86,16 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 
 	groups, groupKeys := evalGroups(c)
 	cmds, cmdKeys := evalCmds(c, styles)
-	flags, flagKeys := evalFlags(c, styles, opts.flagTypes)
-	space := calculateSpace(cmdKeys, flagKeys)
+
+	var flags, globalFlags map[string]string
+	var flagKeys, globalFlagKeys []string
+	if opts.globalFlags {
+		flags, flagKeys = evalFlags(c.LocalFlags(), styles, opts.flagTypes)
+		globalFlags, globalFlagKeys = evalFlags(c.InheritedFlags(), styles, opts.flagTypes)
+	} else {
+		flags, flagKeys = evalFlags(c.Flags(), styles, opts.flagTypes)
+	}
+	space := calculateSpace(cmdKeys, flagKeys, globalFlagKeys)
 
 	for _, groupID := range groupKeys {
 		group := cmds[groupID]
@@ -110,6 +119,16 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 		renderGroup(w, styles, space, "flags", func(yield func(string, string) bool) {
 			for _, k := range flagKeys {
 				if !yield(k, flags[k]) {
+					return
+				}
+			}
+		})
+	}
+
+	if len(globalFlags) > 0 {
+		renderGroup(w, styles, space, "global flags", func(yield func(string, string) bool) {
+			for _, k := range globalFlagKeys {
+				if !yield(k, globalFlags[k]) {
 					return
 				}
 			}
@@ -403,18 +422,18 @@ func styleExample(c *cobra.Command, line string, indent bool, commentWidth int, 
 	)
 }
 
-func evalFlags(c *cobra.Command, styles Styles, flagTypes bool) (map[string]string, []string) {
+func evalFlags(flagSet *pflag.FlagSet, styles Styles, flagTypes bool) (map[string]string, []string) {
 	flags := map[string]string{}
 	keys := []string{}
 
 	hasShorthand := false
-	c.Flags().VisitAll(func(f *pflag.Flag) {
+	flagSet.VisitAll(func(f *pflag.Flag) {
 		if f.Shorthand != "" {
 			hasShorthand = true
 		}
 	})
 
-	c.Flags().VisitAll(func(f *pflag.Flag) {
+	flagSet.VisitAll(func(f *pflag.Flag) {
 		if f.Hidden {
 			return
 		}
@@ -522,11 +541,13 @@ func renderGroup(w io.Writer, styles Styles, space int, name string, items iter.
 	}
 }
 
-func calculateSpace(k1, k2 []string) int {
+func calculateSpace(keyGroups ...[]string) int {
 	const spaceBetween = 2
 	space := minSpace
-	for _, k := range append(k1, k2...) {
-		space = max(space, lipgloss.Width(k)+spaceBetween)
+	for _, keys := range keyGroups {
+		for _, k := range keys {
+			space = max(space, lipgloss.Width(k)+spaceBetween)
+		}
 	}
 	return space
 }

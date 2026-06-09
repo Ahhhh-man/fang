@@ -122,6 +122,15 @@ func WithWrappedExamples() Option {
 	}
 }
 
+// WithGlobalFlags renders persistent flags inherited from parent commands in a
+// separate "global flags" section, instead of mixing them in with the
+// command's own flags. This mirrors Cobra's built-in "Global Flags" split.
+func WithGlobalFlags() Option {
+	return func(s *settings) {
+		s.helpOptions.globalFlags = true
+	}
+}
+
 // Execute applies fang to the command and executes it.
 func Execute(ctx context.Context, root *cobra.Command, options ...Option) error {
 	opts := settings{

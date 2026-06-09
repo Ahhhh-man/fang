@@ -164,6 +164,40 @@ func TestSetup(t *testing.T) {
 		exercise(t, mkroot, fang.WithFlagTypes())
 	})
 
+	t.Run("with global flags", func(t *testing.T) {
+		mkroot := func() *cobra.Command {
+			cmd := &cobra.Command{
+				Use:   "simple",
+				Short: "Short help",
+				Long:  "Long help",
+			}
+			cmd.PersistentFlags().String("config", "", "config file path")
+			cmd.Flags().Bool("verbose", false, "verbose output")
+			sub := &cobra.Command{
+				Use:   "serve",
+				Short: "start the server",
+			}
+			sub.Flags().IntP("port", "p", 8080, "port to listen on")
+			cmd.AddCommand(sub)
+			return cmd
+		}
+
+		// Root help: --config and --verbose under "flags", no "global flags"
+		// section (root has no inherited flags).
+		exercise(t, mkroot, fang.WithGlobalFlags())
+
+		// Subcommand help: --port under "flags", inherited --config under
+		// "global flags".
+		t.Run("help-sub", func(t *testing.T) {
+			doExercise(
+				t, mkroot,
+				[]string{"serve", "--help"},
+				assertNoError,
+				fang.WithGlobalFlags(),
+			)
+		})
+	})
+
 	t.Run("with subcommands", func(t *testing.T) {
 		mkroot := func() *cobra.Command {
 			cmd := &cobra.Command{
