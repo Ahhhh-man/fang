@@ -382,7 +382,16 @@ func styleExample(c *cobra.Command, line string, indent bool, commentWidth int, 
 				args[i] += styles.Program.DimmedArgument.Render(arg)
 				continue
 			}
-		case "|", "||", "-", "&", "&&":
+		case "|", "||", "&", "&&":
+			args[i] += styles.Program.DimmedArgument.Render(arg)
+			// A command separator begins a new command, so reset parsing
+			// state to recognize the program name and its subcommands again
+			// in the following segment (e.g. `echo x | prog sub create`).
+			foundProgramName = false
+			isQuotedString = false
+			cleanArgs = nil
+			continue
+		case "-":
 			args[i] += styles.Program.DimmedArgument.Render(arg)
 			continue
 		}
