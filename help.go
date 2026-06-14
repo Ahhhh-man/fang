@@ -188,13 +188,14 @@ func InlineErrorHandler(w io.Writer, styles Styles, err error) {
 		}
 	}
 
-	badge := styles.ErrorHeader.UnsetMargins().MarginLeft(2).String()
+	badge := styles.ErrorHeader.UnsetMargins().MarginLeft(1).String()
 	message := styles.ErrorText.
 		UnsetMargins().
 		MarginLeft(1).
 		Width(width() - lipgloss.Width(badge) - 1).
 		Render(err.Error())
 
+	_, _ = fmt.Fprintln(w)
 	_, _ = fmt.Fprintln(w, lipgloss.JoinHorizontal(lipgloss.Top, badge, message))
 	_, _ = fmt.Fprintln(w)
 }
