@@ -14,29 +14,23 @@
   │  example                            │
   │                                     │
   │  # Run it with some arguments:      │
-  │  FOO=bar ZAZ="quoted value"         │
-  │  example…                           │
+  │  FOO=bar ZAZ="quoted value" examp…  │
   │                                     │
-  │  # Run a subcommand with an         │
-  │  argumen…                           │
-  │  example sub --async --name=xyz --  │
-  │  a…                                 │
+  │  # Run a subcommand with an argum…  │
+  │  example sub --async --name=xyz -…  │
   │                                     │
   │  # Run with a quoted string:        │
   │  example sub "quoted string"        │
   │                                     │
   │  # Mix and match:                   │
-  │  example sub "multi-word quoted     │
-  │  str…                               │
+  │  example sub "multi-word quoted s…  │
   │                                     │
   │  # Multi-line:                      │
   │  ENV_A=0 ENV_B=0 ENV_C=0 \          │
-  │    CERT_FILE=/path/to/chain.pem     │
-  │  KEY…                               │
+  │    CERT_FILE=/path/to/chain.pem K…  │
   │    example sub "quoted argument"    │
   │                                     │
-  │  # Run a subcommand's subcommand    │
-  │  wi…                                │
+  │  # Run a subcommand's subcommand …  │
   │  example sub another args --async   │
   │                                     │
   │  # Pipe example:                    │

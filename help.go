@@ -92,7 +92,7 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 	// content width so each wrapped line can be prefixed with "# ".
 	commentWidth := 0
 	if opts.wrapExamples {
-		commentWidth = width() - padding*2 - border
+		commentWidth = width() - padding*2 - border*2
 	}
 	examples := styleExamples(c, styles, commentWidth)
 
@@ -100,7 +100,7 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 	for _, ex := range examples {
 		blockWidth = max(blockWidth, lipgloss.Width(ex))
 	}
-	blockWidth = min(width()-padding-border, blockWidth+padding)
+	blockWidth = min(width()-padding-border, blockWidth+padding+border)
 	blockStyle := styles.Codeblock.Base.Width(blockWidth)
 	if mode == boxOutlined {
 		blockStyle = blockStyle.
@@ -124,7 +124,7 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 	}
 
 	if len(examples) > 0 {
-		cw := blockStyle.GetWidth() - blockStyle.GetHorizontalPadding()
+		cw := blockStyle.GetWidth() - blockStyle.GetHorizontalPadding() - blockStyle.GetHorizontalBorderSize()
 		_, _ = fmt.Fprintln(w, styles.Title.Render("examples"))
 		for i, example := range examples {
 			if !opts.wrapExamples && lipgloss.Width(example) > cw {
