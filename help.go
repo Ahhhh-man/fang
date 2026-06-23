@@ -33,6 +33,29 @@ type helpOptions struct {
 	sections     HelpSectionsFunc
 	globalFlags  bool
 	aliases      bool
+	noFill       bool
+	noBox        bool
+}
+
+// boxMode describes how the usage/examples blocks are rendered.
+type boxMode int
+
+const (
+	boxFilled   boxMode = iota // default: background fill, no border
+	boxOutlined                // WithoutFill: rounded border, no fill
+	boxNone                    // WithoutBox: no fill, no border
+)
+
+// boxMode resolves the two opt-out booleans into a single state. noBox wins.
+func (o helpOptions) boxMode() boxMode {
+	switch {
+	case o.noBox:
+		return boxNone
+	case o.noFill:
+		return boxOutlined
+	default:
+		return boxFilled
+	}
 }
 
 var width = sync.OnceValue(func() int {

@@ -165,6 +165,24 @@ func WithAliases() Option {
 	}
 }
 
+// WithoutFill removes the background fill from the usage and examples blocks,
+// drawing a rounded border around each instead. The sections remain boxed,
+// just outlined rather than filled.
+func WithoutFill() Option {
+	return func(s *settings) {
+		s.helpOptions.noFill = true
+	}
+}
+
+// WithoutBox removes the box around the usage and examples sections entirely:
+// no background fill and no border, leaving plain indented text. Takes
+// precedence over WithoutFill.
+func WithoutBox() Option {
+	return func(s *settings) {
+		s.helpOptions.noBox = true
+	}
+}
+
 // Execute applies fang to the command and executes it.
 func Execute(ctx context.Context, root *cobra.Command, options ...Option) error {
 	opts := settings{
