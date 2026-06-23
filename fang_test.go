@@ -360,67 +360,19 @@ func TestSetup(t *testing.T) {
 	})
 
 	t.Run("with examples", func(t *testing.T) {
-		mkroot := func() *cobra.Command {
-			cmd := &cobra.Command{
-				Use:   "example",
-				Short: "Short help",
-				Example: `
-# Run it:
-example
+		exercise(t, withExamplesRoot)
+	})
 
-# Run it with some arguments:
-FOO=bar ZAZ="quoted value" example --name=Carlos -a -s Becker -a
+	t.Run("without fill", func(t *testing.T) {
+		exercise(t, withExamplesRoot, fang.WithoutFill())
+	})
 
-# Run a subcommand with an argument:
-example sub --async --name=xyz --async arguments
+	t.Run("without box", func(t *testing.T) {
+		exercise(t, withExamplesRoot, fang.WithoutBox())
+	})
 
-# Run with a quoted string:
-example sub "quoted string"
-
-# Mix and match:
-example sub "multi-word quoted string" --name "another quoted string" -a
-
-# Multi-line:
-ENV_A=0 ENV_B=0 ENV_C=0 \
-  CERT_FILE=/path/to/chain.pem KEY_FILE=/path/to/key.pem \
-  example sub "quoted argument"
-
-# Run a subcommand's subcommand with an argument:
-example sub another args --async
-
-# Pipe example:
-echo "foo" | example > bar.txt
-
-# Redirects:
-example < in.txt > out.txt
-example 2>&1 1>/dev/null
-example 1>&2 2>/dev/null
-
-# And / Or:
-foo || example
-example && foo
-
-# Another pipe example:
-echo 'foo' |
-  example sub |
-  cat -
-			`,
-			}
-			sub := &cobra.Command{
-				Use:   "sub",
-				Short: "a sub command",
-			}
-			cmd.AddCommand(sub)
-			sub.AddCommand(&cobra.Command{
-				Use:   "another",
-				Short: "Another sub command",
-			})
-			cmd.Flags().String("name", "", "the name")
-			cmd.Flags().StringP("surname", "s", "", "the surname")
-			cmd.Flags().BoolP("async", "a", false, "async?")
-			return cmd
-		}
-		exercise(t, mkroot)
+	t.Run("without fill and box", func(t *testing.T) {
+		exercise(t, withExamplesRoot, fang.WithoutBox(), fang.WithoutFill())
 	})
 
 	t.Run("with wrapped examples", func(t *testing.T) {
@@ -518,6 +470,67 @@ func toMkroot(c *cobra.Command) func() *cobra.Command {
 	return func() *cobra.Command {
 		return c
 	}
+}
+
+func withExamplesRoot() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "example",
+		Short: "Short help",
+		Example: `
+# Run it:
+example
+
+# Run it with some arguments:
+FOO=bar ZAZ="quoted value" example --name=Carlos -a -s Becker -a
+
+# Run a subcommand with an argument:
+example sub --async --name=xyz --async arguments
+
+# Run with a quoted string:
+example sub "quoted string"
+
+# Mix and match:
+example sub "multi-word quoted string" --name "another quoted string" -a
+
+# Multi-line:
+ENV_A=0 ENV_B=0 ENV_C=0 \
+  CERT_FILE=/path/to/chain.pem KEY_FILE=/path/to/key.pem \
+  example sub "quoted argument"
+
+# Run a subcommand's subcommand with an argument:
+example sub another args --async
+
+# Pipe example:
+echo "foo" | example > bar.txt
+
+# Redirects:
+example < in.txt > out.txt
+example 2>&1 1>/dev/null
+example 1>&2 2>/dev/null
+
+# And / Or:
+foo || example
+example && foo
+
+# Another pipe example:
+echo 'foo' |
+  example sub |
+  cat -
+		`,
+	}
+	sub := &cobra.Command{
+		Use:   "sub",
+		Short: "a sub command",
+	}
+	cmd.AddCommand(sub)
+	sub.AddCommand(&cobra.Command{
+		Use:   "another",
+		Short: "Another sub command",
+	})
+	cmd.Flags().String("name", "", "the name")
+	cmd.Flags().StringP("surname", "s", "", "the surname")
+	cmd.Flags().BoolP("async", "a", false, "async?")
+	return cmd
 }
 
 func assertNoError(t *testing.T, err error, stdout, stderr bytes.Buffer) {

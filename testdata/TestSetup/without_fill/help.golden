@@ -1,0 +1,73 @@
+
+  Short help                                 
+         
+  USAGE  
+         
+  ╭─────────────────────────────────────╮
+  │  example [command] [--flags]        │
+  ╰─────────────────────────────────────╯
+            
+  EXAMPLES  
+            
+  ╭─────────────────────────────────────╮
+  │  # Run it:                          │
+  │  example                            │
+  │                                     │
+  │  # Run it with some arguments:      │
+  │  FOO=bar ZAZ="quoted value"         │
+  │  example…                           │
+  │                                     │
+  │  # Run a subcommand with an         │
+  │  argumen…                           │
+  │  example sub --async --name=xyz --  │
+  │  a…                                 │
+  │                                     │
+  │  # Run with a quoted string:        │
+  │  example sub "quoted string"        │
+  │                                     │
+  │  # Mix and match:                   │
+  │  example sub "multi-word quoted     │
+  │  str…                               │
+  │                                     │
+  │  # Multi-line:                      │
+  │  ENV_A=0 ENV_B=0 ENV_C=0 \          │
+  │    CERT_FILE=/path/to/chain.pem     │
+  │  KEY…                               │
+  │    example sub "quoted argument"    │
+  │                                     │
+  │  # Run a subcommand's subcommand    │
+  │  wi…                                │
+  │  example sub another args --async   │
+  │                                     │
+  │  # Pipe example:                    │
+  │  echo "foo" | example > bar.txt     │
+  │                                     │
+  │  # Redirects:                       │
+  │  example < in.txt > out.txt         │
+  │  example 2>&1 1>/dev/null           │
+  │  example 1>&2 2>/dev/null           │
+  │                                     │
+  │  # And / Or:                        │
+  │  foo || example                     │
+  │  example && foo                     │
+  │                                     │
+  │  # Another pipe example:            │
+  │  echo 'foo' |                       │
+  │    example sub |                    │
+  │    cat -                            │
+  ╰─────────────────────────────────────╯
+            
+  COMMANDS  
+            
+    completion [command]  Generate the autocompletion script for the specified shell
+    help [command]        Help about any command
+    sub                   A sub command
+         
+  FLAGS  
+         
+    -a --async            Async?
+    -h --help             Help for example
+       --name             The name
+    -s --surname          The surname
+    -v --version          Version for example
+
