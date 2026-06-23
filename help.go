@@ -72,14 +72,27 @@ var width = sync.OnceValue(func() int {
 
 func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOptions) {
 	writeLongShort(w, styles, cmp.Or(c.Long, c.Short))
+
+	mode := opts.boxMode()
+	// Capture the fill color before stripping it; the outlined border reuses it.
+	borderColor := styles.Codeblock.Base.GetBackground()
+	if mode != boxFilled {
+		styles = styles.withoutCodeblockFill()
+	}
+
 	usage := styleUsage(c, styles.Codeblock.Program, true)
 
 	padding := styles.Codeblock.Base.GetHorizontalPadding()
+	// A rounded border adds one column on each side.
+	border := 0
+	if mode == boxOutlined {
+		border = 2
+	}
 	// When wrapping is enabled, comment lines are wrapped to the block's
 	// content width so each wrapped line can be prefixed with "# ".
 	commentWidth := 0
 	if opts.wrapExamples {
-		commentWidth = width() - padding*2
+		commentWidth = width() - padding*2 - border
 	}
 	examples := styleExamples(c, styles, commentWidth)
 
@@ -87,8 +100,13 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 	for _, ex := range examples {
 		blockWidth = max(blockWidth, lipgloss.Width(ex))
 	}
-	blockWidth = min(width()-padding, blockWidth+padding)
+	blockWidth = min(width()-padding-border, blockWidth+padding)
 	blockStyle := styles.Codeblock.Base.Width(blockWidth)
+	if mode == boxOutlined {
+		blockStyle = blockStyle.
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(borderColor)
+	}
 
 	// if the color profile is ascii or notty, or if the block has no
 	// background color set, remove the vertical padding.
@@ -199,6 +217,26 @@ func helpFn(c *cobra.Command, w *colorprofile.Writer, styles Styles, opts helpOp
 	}
 
 	_, _ = fmt.Fprintln(w)
+}
+
+// withoutCodeblockFill returns a copy of the styles with every background under
+// Codeblock removed, so usage/examples render without the filled block while
+// keeping their foreground token colors.
+func (s Styles) withoutCodeblockFill() Styles {
+	cb := s.Codeblock
+	cb.Base = cb.Base.UnsetBackground()
+	cb.Text = cb.Text.UnsetBackground()
+	cb.Comment = cb.Comment.UnsetBackground()
+	cb.Program = Program{
+		Name:           cb.Program.Name.UnsetBackground(),
+		Command:        cb.Program.Command.UnsetBackground(),
+		Flag:           cb.Program.Flag.UnsetBackground(),
+		Argument:       cb.Program.Argument.UnsetBackground(),
+		DimmedArgument: cb.Program.DimmedArgument.UnsetBackground(),
+		QuotedString:   cb.Program.QuotedString.UnsetBackground(),
+	}
+	s.Codeblock = cb
+	return s
 }
 
 // DefaultErrorHandler is the default [ErrorHandler] implementation.
