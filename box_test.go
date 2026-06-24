@@ -8,8 +8,9 @@ import (
 )
 
 func TestWithoutCodeblockFill(t *testing.T) {
-	// Set the test width before calling makeStyles so that width()'s
-	// sync.OnceValue cache is initialized at the same value golden tests use.
+	// width() caches its result via sync.OnceValue on first call across the
+	// whole test binary. This test sorts before fang_test.go, so set the test
+	// width here to keep the cached value consistent with the golden tests.
 	t.Setenv("__FANG_TEST_WIDTH", "45")
 	styles := makeStyles(DefaultColorScheme(lipgloss.LightDark(true)))
 
